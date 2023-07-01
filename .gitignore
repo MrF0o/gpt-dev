@@ -1,0 +1,4 @@
+.env
+gen
+node_modules
+prompt
