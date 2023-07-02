@@ -89,7 +89,7 @@ export default class Generator {
                 try {
                     question += this.parseStreamPayload(chunk)
                 } catch (err) {
-                    Logger.log({ debug: true, msg: `Failed to parse payload, skipping chunk:\n${chunk}` })
+                    Logger.log({ debug: true, msg: `Failed to parse payload, skipping a chunk` })
                 }
             })
 

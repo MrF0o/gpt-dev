@@ -20,11 +20,18 @@ yargs(hideBin(process.argv))
   }, (argv) => {
     main(argv)
   })
+  .command('create [project_name]', 'Bootstrap a new project for GPT-dev', (yargs) => {
+    return yargs
+      .positional('project_name', {
+        describe: 'the name of the project',
+      })
+  }, (argv) => {
+    main(argv)
+  })
   .showHelpOnFail(true)
   .option('dir', {
     type: 'string',
     description: 'Output folder',
-    demandOption: true
   })
   .option('key', {
     alias: 'k',
@@ -37,5 +44,7 @@ yargs(hideBin(process.argv))
     type: 'boolean',
     description: 'Run with verbose logging'
   })
-  .demandCommand()
+  .command('*', '', yargs => {
+    console.log(chalk.red('unknown command. use --help for help'))
+  })
   .argv

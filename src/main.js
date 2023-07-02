@@ -12,51 +12,74 @@ import { stdin, stdout } from 'node:process'
 export default async function main(argv) {
     dotenv.config()
     console.clear()
-
     Logger.log({ debug: false, msg: "starting GPT-dev... Happy coding!" })
+
+    const command = argv._[0]
     const fs = new FileSystem()
-    FileSystem.prjectPath = './' + argv.dir + '/'
 
-    const ai = new AI(await AI.getModel())
-    const gen = new Generator(ai, fs.open(argv.dir + '/prompt'))
-    const input = readline.createInterface({ input: stdin, output: stdout })
+    switch (command) {
+        case 'create':
+            Logger.log({ debug: false, msg: "creating a new project in the current directory..." })
 
-    console.log(chalk.gray('GPT-dev is preparing some questions for you... (enter \'s\' to skip any question)\n'))
+            if (argv.project_name) {
+                const projectName = argv.project_name
+                fs.createProject(projectName)
+            } else {
+                console.log(chalk.red('please provide a valid project name'))
+                return
+            }
 
-    let init = true
-    while (true) {
+            break;
+        case 'generate':
+            FileSystem.projectPath = './' + argv.dir + '/'
 
-        const question = await gen.ask(init)
+            const ai = new AI(await AI.getModel())
+            const gen = new Generator(ai, fs.open(argv.dir + '/prompt'))
+            const input = readline.createInterface({ input: stdin, output: stdout })
 
-        if (init) init = false
-        if (question === 'NO QUESTIONS LEFT') break
+            console.log(chalk.gray('GPT-dev is preparing some questions for you... (enter \'s\' to skip any question)\n'))
 
-        console.log(chalk.bold(question))
+            let init = true
+            while (true) {
 
-        let answer = await input.question('> ')
+                const question = await gen.ask(init)
 
-        if (answer === 's') {
-            console.log(chalk.italic('letting GPT-dev make an assumption.'))
-            answer = 'you decide'
-        }
+                if (init) init = false
+                if (question === 'NO QUESTIONS LEFT') break
 
-        await gen.next(answer)
+                console.log(chalk.bold(question))
+
+                let answer = await input.question('> ')
+
+                if (answer === 's') {
+                    console.log(chalk.italic('letting GPT-dev make an assumption.'))
+                    answer = 'you decide'
+                }
+
+                await gen.next(answer)
+            }
+
+            Logger.log({ debug: false, msg: 'thanks for answering the questions, GPT-dev is generating your project...' })
+
+            const files = await gen.generateQuestioned()
+
+            if (files) {
+                Logger.log({ debug: true, msg: "generation complete" })
+                files.forEach((f) => {
+                    fs.writeFileContent(f.path, f.content)
+                })
+            } else {
+                Logger.log({ debug: true, msg: "Error: no files were generated" })
+            }
+
+            // gen.dumpConversation()
+            input.close()
+            break;
+        default:
+            console.log(chalk.red('unknown command. use --help for help'))
+            break;
     }
 
-    Logger.log({debug: false, msg: 'thanks for answering the questions, GPT-dev is generating your project...'})
+    return
 
-    const files = await gen.generateQuestioned()
-
-    if (files) {
-        console.log(files.map(f => f.path))
-        Logger.log({ debug: true, msg: "generation complete" })
-        files.forEach((f) => {
-            fs.writeFileContent(f.path, f.content)
-        })
-    } else {
-        Logger.log({ debug: true, msg: "Error: no files were generated" })
-    }
-
-    // gen.dumpConversation()
-    input.close()
 }
