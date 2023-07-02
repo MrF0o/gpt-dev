@@ -1,7 +1,7 @@
 {
   "name": "gpt-dev",
   "version": "1.0.0",
-  "description": "",
+  "description": "GPT-dev generate complete apps using one prompt",
   "main": "index.js",
   "type": "module",
   "scripts": {
