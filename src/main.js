@@ -10,7 +10,7 @@ import * as readline from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 
 export default async function main(argv) {
-    dotenv.config()
+    // dotenv.config()
     console.clear()
     Logger.log({ debug: false, msg: "starting GPT-dev... Happy coding!" })
 
@@ -29,7 +29,7 @@ export default async function main(argv) {
                 return
             }
 
-            break;
+            break
         case 'generate':
             FileSystem.projectPath = './' + argv.dir + '/'
 
@@ -41,14 +41,19 @@ export default async function main(argv) {
 
             let init = true
             while (true) {
-
                 const question = await gen.ask(init)
+                if (init) {
+                    init = false
+                }
 
-                if (init) init = false
+                if (!question) {
+                    input.close()
+                    return
+                }
+
                 if (question === 'NO QUESTIONS LEFT') break
 
                 console.log(chalk.bold(question))
-
                 let answer = await input.question('> ')
 
                 if (answer === 's') {
@@ -74,10 +79,10 @@ export default async function main(argv) {
 
             // gen.dumpConversation()
             input.close()
-            break;
+            break
         default:
             console.log(chalk.red('unknown command. use --help for help'))
-            break;
+            break
     }
 
     return

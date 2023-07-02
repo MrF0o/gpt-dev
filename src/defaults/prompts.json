@@ -11,7 +11,7 @@
     },
     {
         "name": "questions",
-        "content": "You will receive a description for a project. You will read the instructions and generate bullet point questions one by one about any unclear ideas that are necessary to realise the project.\nYou must write ONE question at a time and wait for the response from user.\nIf there's no questions left to clarify respond with the string 'NO QUESTIONS LEFT'",
+        "content": "You will receive a description for a project. You will read the instructions and generate a series of the most important questions one by one about any unclear ideas that are necessary to realise the project.\nYou must send ONE question at a time and wait for the response from user.\nIf there's no questions left to clarify respond with the string 'NO QUESTIONS LEFT'",
         "version": 1
     },
     {

@@ -31,7 +31,13 @@ export default class AI {
             }, { responseType: 'stream' })
             return chat
         } catch (err) {
-            console.error(err)
+            
+            if (err.response.status === 401) {
+                console.log(chalk.yellow(`the provided API key is not valid, please make sure to put your API Key in OPENAI_API_KEY env variable`))
+            } else {
+                console.error(err)
+            }
+
             return null
         }
 

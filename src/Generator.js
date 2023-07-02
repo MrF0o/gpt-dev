@@ -54,7 +54,6 @@ export default class Generator {
 
             stream.on('end', () => {
                 // parse the response
-                console.log('ended')
                 const files = this.parseResponse(response)
                 resolve(files)
             })
@@ -68,10 +67,10 @@ export default class Generator {
 
     // code generation using questions
     async ask(prompt = null) {
-        const systemPrompt = prompts.find(p => p.name == 'questions')
         let messages = []
-
+        
         if (prompt) {
+            const systemPrompt = prompts.find(p => p.name == 'questions')
             messages = [
                 { role: 'system', content: systemPrompt.content },
                 { role: 'user', content: this.#prompt }
@@ -80,8 +79,11 @@ export default class Generator {
         }
 
         const res = await this.#ai.start(messages)
-        const stream = res.data
-
+        let stream
+        if (res)
+            stream = res.data
+        else return null
+        
         let question = ''
 
         return new Promise((resolve, reject) => {
@@ -94,8 +96,7 @@ export default class Generator {
             })
 
             stream.on('end', () => {
-                if (question !== 'NO QUESTIONS LEFT')
-                    this.#ai.newAssistantMessage(question)
+                this.#ai.newAssistantMessage(question)
                 resolve(question)
             })
         })
