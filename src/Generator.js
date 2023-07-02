@@ -1,5 +1,11 @@
 'use strict'
-import prompts from './defaults/prompts.json' assert {type: 'json'}
+
+import { createRequire } from 'module'
+import Logger from './Logger.js'
+import { appendFileSync } from 'fs'
+
+const require = createRequire(import.meta.url)
+const prompts = require('./defaults/prompts.json')
 
 export default class Generator {
     #ai
@@ -10,13 +16,23 @@ export default class Generator {
         this.#prompt = prompt
     }
 
-    async generate() {
+    getSystemPrompt() {
+        const genPrompt = prompts.find(p => p.name == 'basic_generate')
+        const guidePrompt = prompts.find(p => p.name == 'guides')
+
+        return { role: 'system', content: genPrompt.content + "\nGuidelines:\n" + guidePrompt.content }
+    }
+
+    // generate code and return an array of files
+    async generate(prompt = false) {
         // initialize a conversation
-        const systemPrompt = prompts.find(p => p.name == 'generate')
-        const messages = [
-            { role: 'system', content: systemPrompt.content },
-            { role: 'user', content: this.#prompt }
-        ]
+        
+        let messages = []
+
+        if (prompt)
+            messages = [
+                { role: 'user', content: this.#prompt }
+            ]
 
         // ask the model
         const res = await this.#ai.start(messages)
@@ -27,50 +43,72 @@ export default class Generator {
         }
 
         let response = ''
-
         return new Promise((resolve, reject) => {
             stream.on('data', (chunk) => {
-                const payloads = chunk.toString().split("\n\n")
-
-                for (const payload of payloads) {
-                    if (payload.includes('[DONE]')) return
-
-                    if (payload.startsWith('data:')) {
-                        const json = JSON.parse(payload.replace('data: ', ''))
-                        response += json.choices[0].delta.content
-                    }
+                try {
+                    response += this.parseStreamPayload(chunk)
+                } catch (err) {
+                    Logger.log({ debug: true, msg: `Failed to parse payload, skipping chunk:\n${chunk}` })
                 }
             })
 
             stream.on('end', () => {
                 // parse the response
+                console.log('ended')
                 const files = this.parseResponse(response)
-                // construct a README.md file
-                files.push({
-                    path: 'README.md',
-                    content: response.split('```')[0]
-                })
-
                 resolve(files)
             })
         })
     }
 
-
     // TODO
-    next() {
-        this.#ai.followUp();
+    start() {
+
+    }
+
+    // code generation using questions
+    async ask(prompt = null) {
+        const systemPrompt = prompts.find(p => p.name == 'questions')
+        let messages = []
+
+        if (prompt) {
+            messages = [
+                { role: 'system', content: systemPrompt.content },
+                { role: 'user', content: this.#prompt }
+            ]
+
+        }
+
+        const res = await this.#ai.start(messages)
+        const stream = res.data
+
+        let question = ''
+
+        return new Promise((resolve, reject) => {
+            stream.on('data', (chunk) => {
+                try {
+                    question += this.parseStreamPayload(chunk)
+                } catch (err) {
+                    Logger.log({ debug: true, msg: `Failed to parse payload, skipping chunk:\n${chunk}` })
+                }
+            })
+
+            stream.on('end', () => {
+                if (question !== 'NO QUESTIONS LEFT')
+                    this.#ai.newAssistantMessage(question)
+                resolve(question)
+            })
+        })
+    }
+
+    // respond to the current question and retrieve a new one
+    async next(answer) {
+        this.#ai.newUserMessage(answer)
+
+        return await this.ask()
     }
 
     // returns an array of file to be created
-    /*
-        [
-            {
-                path: string,
-                content: string,
-            }
-        ]
-    */
     parseResponse(response) {
         const reg = /(\S+)\s*```[^\s]*\s([\s\S]+?)```/g
         let match
@@ -84,6 +122,43 @@ export default class Generator {
         }
 
         return matches
+    }
+
+    parseStreamPayload(chunk) {
+        const payloads = chunk.toString().split("\n\n")
+        let payloadContent = ''
+        for (let i = 0; i < payloads.length; i++) {
+            if (payloads[i].trim() === 'data: [DONE]') return ''
+
+            if (payloads[i].trim().startsWith('data:')) {
+                try {
+                    const json = JSON.parse(payloads[i].replace('data: ', ''))
+                    const content = json.choices[0].delta?.content
+                    if (json.choices[0].finish_reason !== 'stop') {
+                        payloadContent += content
+                    }
+                } catch (err) {
+                    throw err
+                }
+            }
+        }
+
+        return payloadContent
+    }
+
+    async generateQuestioned() {
+        const convo = this.#ai.getConversation()
+        this.#prompt = prompts.find(p => p.name == 'after_questions').content
+        convo.shift()
+        convo.unshift(this.getSystemPrompt())
+        const result = await this.generate(true)
+
+
+        return result
+    }
+
+    dumpConversation() {
+        appendFileSync('./convo', JSON.stringify(this.#ai.getConversation()))
     }
 
 }

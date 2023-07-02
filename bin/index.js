@@ -4,7 +4,7 @@ import boxen from 'boxen'
 import chalk from 'chalk'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import main from '../src/main.js';
+import main from '../src/main.js'
 
 var usage = chalk.green("\nUsage: gptdev <command>");
 
@@ -21,6 +21,17 @@ yargs(hideBin(process.argv))
     main(argv)
   })
   .showHelpOnFail(true)
+  .option('dir', {
+    type: 'string',
+    description: 'Output folder',
+    demandOption: true
+  })
+  .option('key', {
+    alias: 'k',
+    type: 'string',
+    description: 'OpenAI API key',
+    // demandOption: true
+  })
   .option('verbose', {
     alias: 'v',
     type: 'boolean',

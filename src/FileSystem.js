@@ -2,6 +2,7 @@
 
 import fs from 'fs'
 import Logger from './Logger.js'
+import { dirname } from 'path'
 
 export default class FileSystem {
 
@@ -35,10 +36,24 @@ export default class FileSystem {
         const fullPath = FileSystem.prjectPath + path
 
         Logger.log({ debug: false, msg: `writing to ${fullPath}...` });
+
+        if (!fs.existsSync(dirname(fullPath))) {
+            this.createFullPath(fullPath)
+        }
+
         fs.appendFileSync(fullPath, content, (err, file) => {
             if (err) throw err
             Logger.log({ debug: false, msg: `done writing to ${fullPath}!` });
         })
+    }
+
+
+    createFullPath(path) {
+        const dirn = dirname(path)
+
+        if (!fs.existsSync(dirn)) {
+            fs.mkdirSync(dirn, { recursive: true })
+        }
     }
 
 }

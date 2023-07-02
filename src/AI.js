@@ -24,10 +24,10 @@ export default class AI {
     async #query() {
         try {
             const chat = await this.#openaiAPI.createChatCompletion({
-                model: await this.getModel(),
+                model: this.#model,
                 temperature: this.#temperature,
                 stream: true,
-                messages: this.#conversation
+                messages: this.#conversation,
             }, { responseType: 'stream' })
             return chat
         } catch (err) {
@@ -44,7 +44,7 @@ export default class AI {
         return this.#query()
     }
 
-    // follow up an already open conversation
+    // TODO: follow up an already open conversation
     followUp(prompt) {
         const chat = this.#query()
         if (!this.#conversation) {
@@ -52,7 +52,38 @@ export default class AI {
         }
     }
 
-    async getModel() {
+    newSystemMessage(content) {
+        this.#conversation.push({
+            role: 'system',
+            content
+        })
+
+        return this.#conversation
+    }
+
+    newUserMessage(content) {
+        this.#conversation.push({
+            role: 'user',
+            content
+        })
+
+        return this.#conversation
+    }
+
+    newAssistantMessage(content) {
+        this.#conversation.push({
+            role: 'assistant',
+            content
+        })
+
+        return this.#conversation
+    }
+
+    getConversation() {
+        return this.#conversation
+    }
+
+    static async getModel() {
         let model = 'gpt-4'
 
         try {
