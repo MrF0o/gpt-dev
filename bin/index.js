@@ -47,4 +47,5 @@ yargs(hideBin(process.argv))
   .command('*', '', yargs => {
     console.log(chalk.red('unknown command. use --help for help'))
   })
+  .scriptName('gptdev')
   .argv

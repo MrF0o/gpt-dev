@@ -1,8 +1,8 @@
 {
   "name": "gpt-dev",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GPT-dev generate complete apps using one prompt",
-  "main": "index.js",
+  "main": "gptdev",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
