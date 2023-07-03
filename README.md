@@ -9,15 +9,15 @@ The process is simple:
 - Done! your code is generated
 
 ## Installation
-To install GPT-dev you need nodejs >= 16.0 installed with npm.
+To install GPT-dev you need nodejs version 18.0 or later installed with npm.
 
-First install the package globally to be able to run `gptdev` command from the terminal:
+First install this package globally to be able to run `gptdev` command from the terminal:
 
 ```bash
 npm i gpt-dev -g
 ```
 
-To check that the installation process went correctly run:
+To check that the installation process went correctly, run:
 
 ```bash
 gptdev --help
@@ -70,7 +70,7 @@ gptdev generate --dir="."
 ```
 > `--dir="."` means that the `prompt` file is located in this directory
 
-if everything goes as planned you'll be prompted to answer some question regarding the prompt you provided. after you complete all the answers your files will be generated in the current directory.
+If everything went as planned you'll be prompted to answer some question regarding the prompt you provided. after you complete all the answers, your project files will be generated in the current directory.
 
 [see demo](https://twitter.com/MrF0o/status/1675237396617609228?s=20)
 
