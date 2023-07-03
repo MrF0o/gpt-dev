@@ -1,28 +1,28 @@
 # GPT-dev
 
-generate complete apps with ONE prompt.
+*Imagine, write the prompt and let GPT-dev generate complete apps for you with ONE prompt.*
 
 The process is simple:
-- write the prompt
-- run a command
+- Write the prompt
+- Run a command
 - GPT-dev will ask you if there's anything unclear
 - Done! your code is generated
 
-## installation
+## Installation
 To install GPT-dev you need nodejs >= 16.0 installed with npm.
 
-first install the package globally to be able to run `gptdev` command from the terminal:
+First install the package globally to be able to run `gptdev` command from the terminal:
 
 ```bash
 npm i gpt-dev -g
 ```
 
-to check that the installation process went correctly run:
+To check that the installation process went correctly run:
 
 ```bash
 gptdev --help
 ```
-the output should look something like this:
+The output should look something like this:
 
 ```txt
 Usage: gptdev <command>
@@ -40,16 +40,16 @@ Options:
   -v, --verbose  Run with verbose logging                              [boolean]
 ```
 
-## setup OpenAI API Key
+## Setup OpenAI API Key
 GPT-dev looks in enviroment variables for a variable named OPENAI_API_KEY.
 
-if you're on linux you can run this command to set your api key to OPENAI_API_KEY:
+If you're on linux you can run this command to set your api key to OPENAI_API_KEY:
 
 ```bash
 export OPENAI_API_KEY=[your key goes here]
 ```
 
-if you're on Windows open CMD and use this:
+If you're on Windows open CMD and use this:
 
 ```bat
 set OPENAI_API_KEY=[your key goes here]
@@ -57,14 +57,14 @@ set OPENAI_API_KEY=[your key goes here]
 
 ## Usage
 
-after the installation is complete you can now create a project by running this command:
+After the installation is complete you can now create a project by running this command:
 ```bash
 gptdev create [project name]
 ```
 
-then, navigate to the newely create folder named [project name] using your terminal and fill in the `./prompt` file.
+Then, navigate to the newely create folder named [project name] using your terminal and fill in the `./prompt` file.
 
-after the project is created you'll be able to run the generate command:
+After you write the prompt you will be able to run the generate command:
 ```bash
 gptdev generate --dir="."
 ```
